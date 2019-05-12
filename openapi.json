@@ -1,0 +1,2021 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "online.fdm.center api server",
+    "description": "Описание API для работы с сервисом онлайн заказа 3d печати",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/auth": {
+      "post": {
+        "x-controller-name": "AuthController",
+        "x-operation-name": "auth",
+        "tags": [
+          "AuthController"
+        ],
+        "description": "Авторизует пользователя с помощью логина и пароля, переводит все изделия временного пользователя на него, возвращает новый токен",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MailPass"
+              }
+            }
+          }
+        },
+        "operationId": "AuthController.auth"
+      }
+    },
+    "/files/{filename}/download": {
+      "get": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "downloadModel",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Скачать 3d модель",
+        "responses": {
+          "200": {
+            "description": "Файл с 3d моделью",
+            "content": {
+              "model/stl": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "FileController.downloadModel"
+      }
+    },
+    "/files/{id}/setAmount": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "setAmount",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Устанавливает объем модели в 3d файле, изменяет статус файла и изделий",
+        "responses": {
+          "204": {
+            "description": "Объем модели сохранен"
+          }
+        },
+        "security": [
+          {
+            "serverToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "FileController.setAmount"
+      }
+    },
+    "/files/{id}/setImage": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "setImage",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Устанавливает изображение в 3d файле.",
+        "responses": {
+          "204": {
+            "description": "Объем модели сохранен"
+          }
+        },
+        "security": [
+          {
+            "serverToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreeDFileImage"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "FileController.setImage"
+      }
+    },
+    "/files/{id}/setProcessFailed": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "setProcessFailed",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Устанавливает статус ошибки обработки.",
+        "responses": {
+          "204": {
+            "description": "Объем модели сохранен"
+          }
+        },
+        "security": [
+          {
+            "serverToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "FileController.setProcessFailed"
+      }
+    },
+    "/files": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "create",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Загрузить файл на сервер",
+        "responses": {
+          "200": {
+            "description": "File model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreeDFile"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "description": "multipart/form-data value.",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "x-parser": "stream",
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "operationId": "FileController.create"
+      }
+    },
+    "/getFileToProcess": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "getFileToProcess",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Получить файл для обработки слайсером. После получения статус файла устанавливается в *PROCESSING*",
+        "responses": {
+          "200": {
+            "description": "File model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreeDFile"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "serverToken": []
+          }
+        ],
+        "operationId": "FileController.getFileToProcess"
+      }
+    },
+    "/getFileToRender": {
+      "post": {
+        "x-controller-name": "FileController",
+        "x-operation-name": "getFileToRender",
+        "tags": [
+          "FileController"
+        ],
+        "description": "Получить файл для обработки рендером.",
+        "responses": {
+          "200": {
+            "description": "File model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreeDFile"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "operationId": "FileController.getFileToRender"
+      }
+    },
+    "/materials/{id}": {
+      "patch": {
+        "x-controller-name": "MaterialsController",
+        "x-operation-name": "updateById",
+        "tags": [
+          "MaterialsController"
+        ],
+        "description": "Обновить материал по его id",
+        "responses": {
+          "204": {
+            "description": "Materials PATCH success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Materials"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "MaterialsController.updateById"
+      },
+      "get": {
+        "x-controller-name": "MaterialsController",
+        "x-operation-name": "findById",
+        "tags": [
+          "MaterialsController"
+        ],
+        "description": "Получить материал по его id",
+        "responses": {
+          "200": {
+            "description": "Materials model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Materials"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "MaterialsController.findById"
+      },
+      "delete": {
+        "x-controller-name": "MaterialsController",
+        "x-operation-name": "deleteById",
+        "tags": [
+          "MaterialsController"
+        ],
+        "description": "Удалить материал",
+        "responses": {
+          "204": {
+            "description": "Materials DELETE success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "MaterialsController.deleteById"
+      }
+    },
+    "/materials": {
+      "post": {
+        "x-controller-name": "MaterialsController",
+        "x-operation-name": "create",
+        "tags": [
+          "MaterialsController"
+        ],
+        "description": "Создать материал",
+        "responses": {
+          "200": {
+            "description": "Materials model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Materials"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Materials"
+              }
+            }
+          }
+        },
+        "operationId": "MaterialsController.create"
+      },
+      "get": {
+        "x-controller-name": "MaterialsController",
+        "x-operation-name": "find",
+        "tags": [
+          "MaterialsController"
+        ],
+        "description": "Получить массив материалов",
+        "responses": {
+          "200": {
+            "description": "Массив материалов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Materials"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "properties": {
+                "where": {
+                  "type": "object"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "boolean"
+                    },
+                    "type": {
+                      "type": "boolean"
+                    },
+                    "color": {
+                      "type": "boolean"
+                    },
+                    "count": {
+                      "type": "boolean"
+                    },
+                    "price": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "skip": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "order": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "relation": {
+                        "type": "string"
+                      },
+                      "scope": {
+                        "properties": {
+                          "where": {
+                            "type": "object"
+                          },
+                          "fields": {
+                            "type": "object",
+                            "properties": {}
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "skip": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "order": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "operationId": "MaterialsController.find"
+      }
+    },
+    "/payments/success/{id}": {
+      "post": {
+        "x-controller-name": "PaymentsController",
+        "x-operation-name": "paymentSuccess",
+        "tags": [
+          "PaymentsController"
+        ],
+        "description": "Callback успешной оплаты продукта",
+        "responses": {
+          "204": {
+            "description": "Установлен статус \"оплачено\""
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "PaymentsController.paymentSuccess"
+      }
+    },
+    "/ping": {
+      "get": {
+        "x-controller-name": "PingController",
+        "x-operation-name": "ping",
+        "tags": [
+          "PingController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ping Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "greeting": {
+                      "type": "string"
+                    },
+                    "date": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "headers": {
+                      "type": "object",
+                      "properties": {
+                        "Content-Type": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "PingController.ping"
+      }
+    },
+    "/print-qualities/{id}": {
+      "patch": {
+        "x-controller-name": "PrintQualityController",
+        "x-operation-name": "updateById",
+        "tags": [
+          "PrintQualityController"
+        ],
+        "description": "Изменить качество печати",
+        "responses": {
+          "204": {
+            "description": "PrintQuality PATCH success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrintQuality"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "PrintQualityController.updateById"
+      },
+      "get": {
+        "x-controller-name": "PrintQualityController",
+        "x-operation-name": "findById",
+        "tags": [
+          "PrintQualityController"
+        ],
+        "description": "Получить качество печати по id",
+        "responses": {
+          "200": {
+            "description": "PrintQuality model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrintQuality"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "PrintQualityController.findById"
+      },
+      "delete": {
+        "x-controller-name": "PrintQualityController",
+        "x-operation-name": "deleteById",
+        "tags": [
+          "PrintQualityController"
+        ],
+        "description": "Удалить качество печати",
+        "responses": {
+          "204": {
+            "description": "PrintQuality DELETE success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "PrintQualityController.deleteById"
+      }
+    },
+    "/print-qualities": {
+      "post": {
+        "x-controller-name": "PrintQualityController",
+        "x-operation-name": "create",
+        "tags": [
+          "PrintQualityController"
+        ],
+        "description": "Создать качества печати",
+        "responses": {
+          "200": {
+            "description": "PrintQuality model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrintQuality"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrintQuality"
+              }
+            }
+          }
+        },
+        "operationId": "PrintQualityController.create"
+      },
+      "get": {
+        "x-controller-name": "PrintQualityController",
+        "x-operation-name": "find",
+        "tags": [
+          "PrintQualityController"
+        ],
+        "description": "Получить качества печати",
+        "responses": {
+          "200": {
+            "description": "Array of PrintQuality model instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrintQuality"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "properties": {
+                "where": {
+                  "type": "object"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "boolean"
+                    },
+                    "factor": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "skip": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "order": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "relation": {
+                        "type": "string"
+                      },
+                      "scope": {
+                        "properties": {
+                          "where": {
+                            "type": "object"
+                          },
+                          "fields": {
+                            "type": "object",
+                            "properties": {}
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "skip": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "order": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "operationId": "PrintQualityController.find"
+      }
+    },
+    "/products/duplicate/{id}": {
+      "post": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "duplicateProductById",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Скопировать изделие",
+        "responses": {
+          "200": {
+            "description": "Duplicate product model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.duplicateProductById"
+      }
+    },
+    "/products/{id}/file": {
+      "get": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "getFile",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Получить 3d файл изделия",
+        "responses": {
+          "200": {
+            "description": "Экземпляр ThreeDFile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreeDFile"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.getFile"
+      }
+    },
+    "/products/{id}/getImage": {
+      "get": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "getImage",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Получить ссылку на рендер",
+        "responses": {
+          "200": {
+            "description": "Ссылка на рендер",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.getImage"
+      }
+    },
+    "/products/{id}/getPreliminaryPrice": {
+      "get": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "getPreliminaryPrice",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Посчитать примерную цену изделия",
+        "responses": {
+          "200": {
+            "description": "Предварительная цена изделия",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreliminaryPrice"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.getPreliminaryPrice"
+      }
+    },
+    "/products/{id}/setStatus": {
+      "post": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "setStatus",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Поменять статус изделия",
+        "responses": {
+          "204": {
+            "description": "Статус сменен"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductStatus"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "ProductController.setStatus"
+      }
+    },
+    "/products/{id}": {
+      "patch": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "updateById",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Обновить изделие по id",
+        "responses": {
+          "204": {
+            "description": "Product PATCH success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "ProductController.updateById"
+      },
+      "get": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "findById",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Получить изделие по его id",
+        "responses": {
+          "200": {
+            "description": "Product model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.findById"
+      },
+      "delete": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "deleteById",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Удалить изделие",
+        "responses": {
+          "204": {
+            "description": "Product DELETE success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "ProductController.deleteById"
+      }
+    },
+    "/products": {
+      "post": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "create",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Создать продукт",
+        "responses": {
+          "200": {
+            "description": "Product model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "operationId": "ProductController.create"
+      },
+      "get": {
+        "x-controller-name": "ProductController",
+        "x-operation-name": "find",
+        "tags": [
+          "ProductController"
+        ],
+        "description": "Получить массив изделий",
+        "responses": {
+          "200": {
+            "description": "Array of Product model instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "properties": {
+                "where": {
+                  "type": "object"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "boolean"
+                    },
+                    "description": {
+                      "type": "boolean"
+                    },
+                    "userId": {
+                      "type": "boolean"
+                    },
+                    "fileId": {
+                      "type": "boolean"
+                    },
+                    "materialId": {
+                      "type": "boolean"
+                    },
+                    "qualityId": {
+                      "type": "boolean"
+                    },
+                    "count": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    },
+                    "price": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "skip": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "order": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "relation": {
+                        "type": "string"
+                      },
+                      "scope": {
+                        "properties": {
+                          "where": {
+                            "type": "object"
+                          },
+                          "fields": {
+                            "type": "object",
+                            "properties": {}
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "skip": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "order": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "operationId": "ProductController.find"
+      }
+    },
+    "/register": {
+      "post": {
+        "x-controller-name": "AuthController",
+        "x-operation-name": "register",
+        "tags": [
+          "AuthController"
+        ],
+        "description": "Регистрация пользователя, изменение статуса временного пользователя на постоянного",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserForRegister"
+              }
+            }
+          }
+        },
+        "operationId": "AuthController.register"
+      }
+    },
+    "/temporaryRegister": {
+      "post": {
+        "x-controller-name": "AuthController",
+        "x-operation-name": "temporaryRegister",
+        "tags": [
+          "AuthController"
+        ],
+        "description": "Создание временного пользователя и токена авторизации",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "AuthController.temporaryRegister"
+      }
+    },
+    "/users/{id}": {
+      "patch": {
+        "x-controller-name": "UserController",
+        "x-operation-name": "updateById",
+        "tags": [
+          "UserController"
+        ],
+        "description": "Обновить пользователя по id",
+        "responses": {
+          "204": {
+            "description": "User PATCH success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "x-parameter-index": 1
+        },
+        "operationId": "UserController.updateById"
+      },
+      "get": {
+        "x-controller-name": "UserController",
+        "x-operation-name": "findById",
+        "tags": [
+          "UserController"
+        ],
+        "description": "Получить пользователя по id",
+        "responses": {
+          "200": {
+            "description": "Экземпляр пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "UserController.findById"
+      },
+      "delete": {
+        "x-controller-name": "UserController",
+        "x-operation-name": "deleteById",
+        "tags": [
+          "UserController"
+        ],
+        "description": "Удалить пользователя",
+        "responses": {
+          "204": {
+            "description": "User DELETE success"
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "UserController.deleteById"
+      }
+    },
+    "/users": {
+      "post": {
+        "x-controller-name": "UserController",
+        "x-operation-name": "create",
+        "tags": [
+          "UserController"
+        ],
+        "description": "Создать пользователя",
+        "responses": {
+          "200": {
+            "description": "Пользователь создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserForRegisterByAdmin"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserForRegisterByAdmin"
+              }
+            }
+          }
+        },
+        "operationId": "UserController.create"
+      },
+      "get": {
+        "x-controller-name": "UserController",
+        "x-operation-name": "find",
+        "tags": [
+          "UserController"
+        ],
+        "description": "Получить массив пользователей",
+        "responses": {
+          "200": {
+            "description": "Массив пользователей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "authToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "properties": {
+                "where": {
+                  "type": "object"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "boolean"
+                    },
+                    "mail": {
+                      "type": "boolean"
+                    },
+                    "password": {
+                      "type": "boolean"
+                    },
+                    "address": {
+                      "type": "boolean"
+                    },
+                    "balance": {
+                      "type": "boolean"
+                    },
+                    "group": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "skip": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "order": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "relation": {
+                        "type": "string"
+                      },
+                      "scope": {
+                        "properties": {
+                          "where": {
+                            "type": "object"
+                          },
+                          "fields": {
+                            "type": "object",
+                            "properties": {}
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "limit": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "skip": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "order": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "operationId": "UserController.find"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AuthController",
+      "description": "Контроллер авторизации"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "authToken": {
+        "type": "apiKey",
+        "name": "x-auth-token",
+        "in": "header"
+      },
+      "adminToken": {
+        "type": "apiKey",
+        "name": "x-admin-token",
+        "in": "header"
+      },
+      "serverToken": {
+        "type": "apiKey",
+        "name": "x-server-token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "AuthToken": {
+        "title": "AuthToken",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "User": {
+        "title": "User",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mail": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "group": {
+            "type": "string",
+            "title": "Статус",
+            "enum": [
+              "TEMPORARY_USER",
+              "USER",
+              "OPERATOR",
+              "SERVER",
+              "ADMIN"
+            ]
+          }
+        }
+      },
+      "UserForRegister": {
+        "title": "UserForRegister",
+        "properties": {
+          "mail": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mail",
+          "password"
+        ]
+      },
+      "MailPass": {
+        "title": "MailPass",
+        "properties": {
+          "mail": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mail",
+          "password"
+        ]
+      },
+      "ThreeDFile": {
+        "title": "ThreeDFile",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "mimetype": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination",
+          "filename"
+        ]
+      },
+      "ThreeDFileImage": {
+        "title": "ThreeDFileImage",
+        "properties": {
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "Materials": {
+        "title": "Materials",
+        "properties": {
+          "id": {
+            "type": "number",
+            "title": "ID"
+          },
+          "type": {
+            "type": "string",
+            "title": "Тип"
+          },
+          "color": {
+            "type": "string",
+            "title": "Цвет"
+          },
+          "count": {
+            "type": "number",
+            "title": "Количество"
+          },
+          "price": {
+            "type": "number",
+            "title": "Цена"
+          }
+        },
+        "required": [
+          "type",
+          "price"
+        ]
+      },
+      "PrintQuality": {
+        "title": "PrintQuality",
+        "properties": {
+          "id": {
+            "type": "number",
+            "title": "ID"
+          },
+          "name": {
+            "type": "string",
+            "title": "Название"
+          },
+          "factor": {
+            "type": "number",
+            "title": "Множитель"
+          }
+        },
+        "required": [
+          "name",
+          "factor"
+        ]
+      },
+      "Product": {
+        "title": "Product",
+        "properties": {
+          "id": {
+            "type": "number",
+            "title": "ID"
+          },
+          "name": {
+            "type": "string",
+            "title": "Название"
+          },
+          "description": {
+            "type": "string",
+            "title": "Описание"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "fileId": {
+            "type": "number"
+          },
+          "materialId": {
+            "type": "number"
+          },
+          "qualityId": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number",
+            "title": "Количество"
+          },
+          "status": {
+            "type": "string",
+            "title": "Статус",
+            "enum": [
+              "WAITING_FOR_PROCESSING",
+              "PROCESSING",
+              "PROCESSING_ERROR",
+              "READY_FOR_PRINTING",
+              "OPERATORS_CHECK",
+              "UNPRINTABLE",
+              "WAITING_FOR_PAYMENT",
+              "PAID",
+              "REFUND_BY_USER",
+              "PRINTING",
+              "REFUND_BY_OPERATOR",
+              "TRANSFER",
+              "COMPLETED",
+              "DELETED"
+            ]
+          },
+          "price": {
+            "type": "number",
+            "title": "Цена"
+          }
+        },
+        "required": [
+          "name",
+          "count"
+        ]
+      },
+      "PreliminaryPrice": {
+        "title": "PreliminaryPrice",
+        "properties": {
+          "preliminaryPrice": {
+            "type": "number"
+          }
+        }
+      },
+      "ProductStatus": {
+        "title": "ProductStatus",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "WAITING_FOR_PROCESSING",
+              "PROCESSING",
+              "PROCESSING_ERROR",
+              "READY_FOR_PRINTING",
+              "OPERATORS_CHECK",
+              "UNPRINTABLE",
+              "WAITING_FOR_PAYMENT",
+              "PAID",
+              "REFUND_BY_USER",
+              "PRINTING",
+              "REFUND_BY_OPERATOR",
+              "TRANSFER",
+              "COMPLETED",
+              "DELETED"
+            ]
+          }
+        }
+      },
+      "UserForRegisterByAdmin": {
+        "title": "UserForRegister",
+        "properties": {
+          "mail": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mail",
+          "password"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://api.online.fdm.center"
+    }
+  ]
+}
