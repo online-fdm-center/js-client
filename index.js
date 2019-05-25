@@ -264,6 +264,15 @@ export class Api {
       .then(this.defaultResponseHandler)
   }
 
+  getEvent = (token, id) => {
+    return fetch(`//${Api.apiUrl}/products/${id}/events`, {
+      headers: {
+        'x-auth-token': token
+      },
+    })
+      .then(this.defaultResponseHandler)
+  }
+
   getProducts = (token, filter) => {
     return fetch(`//${Api.apiUrl}/products?${qs.stringify({filter})}`, {
       headers: {
